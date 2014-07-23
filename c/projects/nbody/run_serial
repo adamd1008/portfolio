@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Number of particles in the simulation
+NUM_PARTICLES=600
+
+# The size of the initial volume in which particles are spawned
+VOLUME_SIZE=5000.0
+
+# What's the maximum multiple one particle's mass can be from another
+MASS_RANGE=100
+
+# Line length
+LINE_LENGTH=75
+
+# Initial velocity of particles (NOTE: they have random direction)
+VELOCITY=2.5
+
+# The number of particles to track
+# Normally you'd want this to be the number of particles, or one or two
+LINE_FOLLOW=$NUM_PARTICLES
+
+# The universal constant G
+GRAVITY=0.25
+
+# Threshold for acceleration warnings
+THRESHOLD=10.0
+
+# Radius
+RADIUS=8000.0
+
+gcc -O3 -lm -DFX -DXMESA -lGL -lGLU -lglut -lX11 -o nbody nbody.c &&
+./nbody --particles=$NUM_PARTICLES --volume=$VOLUME_SIZE --mass=$MASS_RANGE --lines=$LINE_LENGTH --velocity=$VELOCITY --follow=$LINE_FOLLOW --gravity=$GRAVITY --threshold=$THRESHOLD --radius=$RADIUS

@@ -1,0 +1,5 @@
+tab2space
+
+####
+
+T2S processes source files and replaces tabs of a certain size with spaces.

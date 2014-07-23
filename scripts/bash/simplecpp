@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# Same as `simplec` but for C++ source files
+
+if [ $# -ne 1 ]; then
+	echo 'Wrong number of arguments!!' > /dev/stderr
+	
+	exit 1
+fi
+
+SIMPLECPP_ARG="$@"
+FILE_SUFFIX=".cpp"
+
+OUT_FILE=${SIMPLECPP_ARG/$FILE_SUFFIX/}
+
+if [ -z "$CPPFLAGS" ]; then
+	CPPFLAGS="-g3 -Wall -Wno-write-strings"
+fi
+
+g++ $CPPFLAGS -o $OUT_FILE "$@"
+
+exit $?

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+gcc -Wall -std=c99 -g3 -fpic -c -o log.o log.c &&
+#ar -rcs libLog.a log.o &&
+gcc -Wall -std=c99 -g3 -fpic -shared -Wl,-soname,libLog.so -o libLog.so log.o &&
+echo 'Done!' ||
+echo -e '\aError!'

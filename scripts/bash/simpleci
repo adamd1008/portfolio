@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+# A simple script to compile a C source file with basic GCC switches directly
+# from the command line
+
+if [ $# -ne 1 ]; then
+	echo 'Wrong number of arguments!!' > /dev/stderr
+	
+	exit 1
+fi
+
+if [ -z "$CFLAGS" ]; then
+	CFLAGS="-g3 -Wall"
+fi
+
+gcc -std=c99 $CFLAGS -xc -o "$@" -
+
+exit $?

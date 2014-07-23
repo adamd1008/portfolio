@@ -1,0 +1,15 @@
+log
+
+####
+
+This library offers an easy-to-use way of outputting debugging and other information to a log file. Time since initialisation is automatically printed with each message, in much the same way as Linux logs in /var/log. There are three standard types of message: informational (INFO), warning (WARN) and error (ERR).
+
+Sample output:
+
+* When initialised with LOG_FLAG_SRC_INFO:
+
+[   19.298347] <admin_socket.c:193> INFO: Connection from host 127.0.0.1
+
+* Without:
+
+[    6.862573] INFO: Received EOF

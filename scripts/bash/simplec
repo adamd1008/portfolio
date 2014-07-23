@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# A simple script to compile a C source file with basic GCC switches
+
+if [ $# -ne 1 ]; then
+	echo 'Wrong number of arguments!!' > /dev/stderr
+	
+	exit 1
+fi
+
+SIMPLEC_ARG="$@"
+FILE_SUFFIX=".c"
+
+OUT_FILE=${SIMPLEC_ARG/$FILE_SUFFIX/}
+
+if [ -z "$CFLAGS" ]; then
+	CFLAGS="-g3"
+fi
+
+gcc -std=c99 $CFLAGS -o $OUT_FILE "$@"
+
+exit $?

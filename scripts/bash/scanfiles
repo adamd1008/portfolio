@@ -1,0 +1,222 @@
+#!/bin/bash
+#
+# A scanning script
+#
+# Uses SANE to connect to a supported USB scanner and place scanned documents
+# into client directories of the form "$TOP_DIR/[A-Za-z][0-9][0-9]"
+#
+# It will need to be configured with the default scanning settings of your
+# scanners in changeDevice()
+
+declare -u CLIENT_NO
+declare -l NARRATIVE
+TOP_DIR="."
+CURRENT_DEVICE="hpaio:/usb/psc_2400_series?serial=HU43AJF15C6T"
+SCANIMAGE_CMD="scanimage -p --format=tiff --mode Gray"
+
+changeDevice()
+{
+	clear
+	
+	IFS="|"
+	CURRENT_DEVICE_LIST=`scanimage -f "%d|%v|%m|"`
+	
+	set -- $CURRENT_DEVICE_LIST
+	
+	listOfDevices=( $CURRENT_DEVICE_LIST )
+	
+	echo -e "Select a scanning device:\n"
+	
+	declare -i i=0
+	declare -i current=1
+	
+	while [ $i -lt ${#listOfDevices[@]} ]; do
+		echo "$current - ${listOfDevices[((i+1))]} ${listOfDevices[((i+2))]}"
+		((current++))
+		((i+=3))
+	done
+	
+	echo -n "Choice: "
+	read
+	echo
+	
+	if [ $REPLY -ge $current ]; then
+		echo 'Invalid choice!!'
+		return 1
+	fi
+	
+	declare -i choice
+	let "choice = ($REPLY - 1) * 3"
+	
+	if [ "${listOfDevices[((choice+1))]}" == "Hewlett-Packard" ]; then
+		CURRENT_DEVICE="${listOfDevices[choice]}"
+		SCANIMAGE_CMD="scanimage -d $CURRENT_DEVICE -p --format=tiff --mode Gray"
+	elif [ "${listOfDevices[((choice+1))]}" == "Mustek" ]; then
+                CURRENT_DEVICE="${listOfDevices[choice]}"
+		SCANIMAGE_CMD="scanimage -d $CURRENT_DEVICE --resolution 75 --depth 8 -p --format=tiff --mode Gray"
+	else
+		echo 'Unrecognised device! Guessing how to use it... (This may not work!)'
+		CURRENT_DEVICE="${listOfDevices[choice]}"
+		SCANIMAGE_CMD="scanimage -d $CURRENT_DEVICE -p --resolution 75 --format=tiff --mode Gray"
+	fi
+	
+	echo "Selected device: $CURRENT_DEVICE"
+	echo
+	
+	return 0
+}
+
+changeMode()
+{
+	clear
+	
+	echo -e "Select an option:\n"
+	echo "1             - Change client number"
+	echo "2             - Cancel"
+	echo "3             - Change device"
+	echo "Anything else - Quit"
+	echo
+	echo -n "Choice: "
+	read
+	echo
+	
+	if [ "$REPLY" == "1" ]; then
+		declare -i RESULT1=1
+		
+		while [ $RESULT1 -ne 0 ]; do
+			getClientNo
+			RESULT1=$?
+		done
+		
+		return
+	elif [ "$REPLY" == "2" ]; then
+		return
+	elif [ "$REPLY" == "3" ]; then
+		declare -i RESULT1=1
+		
+		while [ $RESULT1 -ne 0 ]; do
+			changeDevice
+			RESULT1=$?
+		done
+	else
+		exit 0
+	fi
+}
+
+getClientNo()
+{
+	echo -n "Enter client ID: "
+	read
+	echo
+	
+	CLIENT_PREFIX=${REPLY:0:3}
+	
+	STRING=`expr match "$CLIENT_PREFIX" '[A-Za-z][0-9][0-9]'`
+	
+	if [ "$STRING" == "3" ]; then
+		CLIENT_NO=$REPLY
+		
+		#echo "Processed client number: $CLIENT_NO"
+	else
+		echo -e "Invalid client ID \"$REPLY\""
+		
+		return 1
+	fi
+	
+	if [ -d "$TOP_DIR/$CLIENT_NO" ]; then
+		return 0
+	else
+		echo -e "\aDANGER: folder \"$TOP_DIR/$CLIENT_NO\" does not exist - ignoring"
+		
+		return 1
+	fi
+}
+
+#changeMode
+GET_CLIENT_RESULT=1
+
+while [ $GET_CLIENT_RESULT -ne 0 ]; do
+	getClientNo
+	GET_CLIENT_RESULT=$?
+done
+
+echo
+echo "(To change client, just press enter when asked for narrative.)"
+echo
+
+while true; do
+	echo "Selected client: $CLIENT_NO"
+	echo -n "Enter document narrative: "
+	read
+	
+	NARRATIVE=$REPLY
+	
+	if [ -z "$NARRATIVE" ]; then
+		changeMode
+		
+		continue
+	fi
+	
+	NARRATIVE=$REPLY
+	
+	echo -n "Number of pages: "
+	read
+	
+	PAGES_VALID=`expr match "${REPLY:0:1}" '[0-9]'`
+	
+	declare -i NO_OF_PAGES
+	declare -i CURRENT_PAGE=1
+	
+	if [ "$PAGES_VALID" != "1" ]; then
+		NO_OF_PAGES=1
+	else
+		NO_OF_PAGES=$REPLY
+	fi
+	
+	while [ $CURRENT_PAGE -le $NO_OF_PAGES ]; do
+		declare IMAGE_FILE
+		if [ $NO_OF_PAGES -gt 1 ]; then
+			IMAGE_FILE="$TOP_DIR/$CLIENT_NO/`echo -n $CLIENT_NO`_`echo -n $NARRATIVE`_p$CURRENT_PAGE.tiff"
+		else
+			IMAGE_FILE="$TOP_DIR/$CLIENT_NO/`echo -n $CLIENT_NO`_`echo -n $NARRATIVE`.tiff"
+		fi
+		
+		if [ -e "$IMAGE_FILE" ]; then
+			echo -e -n "\aWARNING - file \"$IMAGE_FILE\" exists"
+			echo -n '! Overwrite? (y/n) '
+			read -n 1
+			echo
+			
+			if [ "$REPLY" != "y" -a "$REPLY" != "Y" ]; then
+				clear
+				continue 2
+			fi
+		fi
+		echo "Insert page $CURRENT_PAGE and press ENTER to scan... "
+		read -s
+		
+		echo "Scanning to \"$IMAGE_FILE\"... please wait"
+		
+		eval $SCANIMAGE_CMD > $IMAGE_FILE
+		
+		SCANIMAGE_RESULT=$?
+		if [ $SCANIMAGE_RESULT -ne 0 ]; then
+			echo -e '\aERROR: the scanning program reported an error - inform me ASAP!'
+			exit 1
+		fi
+		
+		((CURRENT_PAGE++))
+	done
+	
+	clear
+	
+	if [ $NO_OF_PAGES -gt 1 ]; then
+		echo "Scanning of \"$NARRATIVE\" document, $NO_OF_PAGES pages, was successful."
+	elif [ $NO_OF_PAGES -eq 1 ]; then
+		echo "Scanning of \"$NARRATIVE\" document, 1 page, was successful."
+	else
+		echo "Scanning of \"$NARRATIVE\" document was cancelled."
+	fi
+		
+	echo
+done

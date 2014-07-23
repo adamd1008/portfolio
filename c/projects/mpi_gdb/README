@@ -1,0 +1,9 @@
+mpi_gdb
+
+####
+
+Originally written for my third year project, this code can be called by MPI applications in order to spawn xterm windows running GDB attached to each MPI task. It names each window with the rank it represents and calculates the positions accordingly, laying them out in a grid.
+
+void mpiGDB(int colSize);
+
+`colSize` specifies how many xterm windows should be in each column. A typical value would be 3 for a 1920x1080 window. Might be good to tweak it slightly for 4:3 monitors.
