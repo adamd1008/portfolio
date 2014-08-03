@@ -33,6 +33,6 @@ RADIUS=4000.0
 
 mpicc -O3 -lm -DFX -DXMESA -lGL -lGLU -lglut -lX11 -o nbody_mpi nbody_mpi.c &&
 #LD_PRELOAD=/usr/lib64/valgrind/libmpiwrap-amd64-linux.so mpirun --bind-to-core --report-bindings -n $MPI_PROCESSES valgrind --log-file="valgrind-%p.log" ./nbody_mpi --particles=$NUM_PARTICLES --volume=$VOLUME_SIZE --mass=$MASS_RANGE --lines=$LINE_LENGTH --velocity=$VELOCITY --follow=$LINE_FOLLOW --gravity=$GRAVITY --threshold=$THRESHOLD --radius=$RADIUS
-mpirun --bind-to-core --report-bindings -n $MPI_PROCESSES ./nbody_mpi --particles=$NUM_PARTICLES --volume=$VOLUME_SIZE --mass=$MASS_RANGE --lines=$LINE_LENGTH --velocity=$VELOCITY --follow=$LINE_FOLLOW --gravity=$GRAVITY --threshold=$THRESHOLD --radius=$RADIUS &&
+mpirun --bind-to-core --report-bindings -n $MPI_PROCESSES ./nbody_mpi --particles=$NUM_PARTICLES --volume=$VOLUME_SIZE --mass=$MASS_RANGE --lines=$LINE_LENGTH --velocity=$VELOCITY --follow=$LINE_FOLLOW --gravity=$GRAVITY --threshold=$THRESHOLD --radius=$RADIUS --colour=8 &&
 exit 0 ||
 exit 1

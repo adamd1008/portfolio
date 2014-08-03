@@ -41,7 +41,10 @@ conn.autocommit(True)
 
 cur = conn.cursor()
 
-backupInstance = int(argv[1])
+query = "SELECT MAX(id) + 1 as max FROM backupinstance"
+cur.execute(query)
+
+backupInstance = cur.fetchone()[0]
 
 query = "INSERT INTO backupinstance (`id`, `start`) VALUES (%d, '%s')" \
 		  % (backupInstance, datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
@@ -66,6 +69,7 @@ for backupDir in ('/path/to/network_dir1', '/path/to/network_dir2'):
 	for root, dirs, files in os.walk(backupDir):
 		for name in files:
 			fileStatus = 0
+			permitted = False
 			
 			for x in exclude:
 				if name[-len(x):] == x:
@@ -76,9 +80,11 @@ for backupDir in ('/path/to/network_dir1', '/path/to/network_dir2'):
 				fileStat = os.stat(fullPath)
 				
 				for x in permit:
-					if name[-len(x):] != x:
-						if fileStat.st_size > fileSizeLimit:
-							fileStatus = 2
+					if name[-len(x):] == x:
+						permitted = True
+				
+				if permitted == False and fileStat.st_size > fileSizeLimit:
+					fileStatus = 2
 				
 				if fileStatus == 0:
 					fileHash = hashFile(fullPath)

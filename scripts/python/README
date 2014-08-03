@@ -1,0 +1,47 @@
+backup.py
+
+####
+
+A backup script I wrote. MySQL table setup:
+
+################################################################################
+
+DROP TABLE IF EXISTS `backupinstance`;
+CREATE TABLE `backupinstance` (
+  `id` int(11) NOT NULL,
+  `start` datetime NOT NULL,
+  `end` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `backupfile`;
+CREATE TABLE `backupfile` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `backupInstanceID` int(11) NOT NULL,
+  `path` varchar(2048) NOT NULL,
+  `size` int(10) unsigned NOT NULL,
+  `dateAccessed` datetime NOT NULL,
+  `dateModified` datetime NOT NULL,
+  `sha1` char(40) DEFAULT NULL,
+  `errno` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `fk_errno` (`errno`),
+  KEY `fk_backupInstanceID` (`backupInstanceID`),
+  CONSTRAINT `fk_backupInstanceID` FOREIGN KEY (`backupInstanceID`) REFERENCES `backupinstance` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `fk_errno` FOREIGN KEY (`errno`) REFERENCES `backuperrno` (`errno`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `backuperrno`;
+CREATE TABLE `backuperrno` (
+  `errno` int(11) NOT NULL,
+  `strerror` varchar(256) NOT NULL,
+  PRIMARY KEY (`errno`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `backuperrno` VALUES ('0', 'Success');
+INSERT INTO `backuperrno` VALUES ('1', 'Excluded file extension');
+INSERT INTO `backuperrno` VALUES ('2', 'File too big');
+INSERT INTO `backuperrno` VALUES ('3', 'IOError');
+INSERT INTO `backuperrno` VALUES ('4', 'Tar error');
+
+################################################################################
