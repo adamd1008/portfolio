@@ -1,7 +1,6 @@
 #define _BSD_SOURCE
 #define _POSIX_SOURCE
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
@@ -29,7 +28,7 @@ struct timeval relTime(struct timeval timeAtStart)
 }
 
 int logInit(log_t* handle, const char* fileName, const int reqLogLevels,
-				const int reqFlags, const logType_t type, int* threadID)
+				const int reqFlags, const logType_t type)
 {
 	handle->logFileStr = malloc(sizeof(char) * PATH_MAX);
 	
@@ -76,42 +75,35 @@ int logInit(log_t* handle, const char* fileName, const int reqLogLevels,
 	}
 	
 	handle->type = type;
-	handle->threadID = threadID;
 	
-	if ((type != single) && (threadID == NULL))
-	{
-		fprintf(stderr, "threadID cannot be null when multi-threaded!\n");
-		EXITF;
-	}
-	
+	int res;
 	char typeStr[16];
 	
 	if (type == single)
 		strcpy(typeStr, "single");
-	else if (type == pthread)
+	else
+	{
 		strcpy(typeStr, "pthread");
-	else if (type == mpi)
-		strcpy(typeStr, "mpi");
-	else
-		strcpy(typeStr, "unknown");
+		
+		if ((res = pthread_mutex_init(&handle->mutex, NULL)) != 0)
+		{
+			logPrint(*handle, LOG_ARGS, LOG_ERR, -1, "pthread_mutex_init() failed "
+						"with %d", res);
+			
+			return -1;
+		}
+	}
 	
-	logPrint(*handle, LOG_ARGS, LOG_INFO, "Log library started (v%d.%d.%d)",
+	logPrint(*handle, LOG_ARGS, LOG_INFO, -1, "Log library started (v%d.%d.%d)",
 				MAJOR_VER, MINOR_VER, BUILD_VER);
-	
-	if (threadID != NULL)
-		logPrint(*handle, LOG_ARGS, LOG_INFO, "threadID = %d, type = %s",
-					*threadID, typeStr);
-	else
-		logPrint(*handle, LOG_ARGS, LOG_INFO, "type = %s", typeStr);
-	
-	logPrint(*handle, LOG_ARGS, LOG_INFO, "loglevels mask = 0x%.08x",
-				reqLogLevels);
+	logPrint(*handle, LOG_ARGS, LOG_INFO, -1, "type = %s, loglevels mask "
+				"= 0x%.08x", typeStr, reqLogLevels);
 	
 	return 0;
 }
 
-int logPrint(log_t handle, const char* file, const int line,
-				  const int logLevel, const char* fmt, ...)
+int logPrint(log_t handle, const char* file, const int line, const int logLevel,
+				 const int threadID, const char* fmt, ...)
 {
 	if (LOG_IS_LL(logLevel))
 	{
@@ -149,34 +141,50 @@ int logPrint(log_t handle, const char* file, const int line,
 		va_end(ap);
 		
 		struct timeval tv = relTime(handle.timeAtStart);
+		int res;
 		
-		if (LOG_IS_FLAG(LOG_FLAG_SRC_INFO))
+		if (handle.type == single)
 		{
-			if (handle.type == single)
+			if (LOG_IS_FLAG(LOG_FLAG_SRC_INFO))
 				fprintf(handle.logFile, "[%5d.%.06d] <%s:%d> %s: %s\n",
 						  tv.tv_sec, tv.tv_usec, file, line, logLevelStr, logEntry);
 			else
-				fprintf(handle.logFile, "[%5d.%.06d] <%s:%d> #%d %s: %s\n",
-						  tv.tv_sec, tv.tv_usec, file, line, *handle.threadID,
-						  logLevelStr, logEntry);
+				fprintf(handle.logFile, "[%5d.%.06d] %s: %s\n",
+						  tv.tv_sec, tv.tv_usec, logLevelStr, logEntry);
 		}
 		else
 		{
-			if (handle.type == single)
-				fprintf(handle.logFile, "[%5d.%.06d] %s: %s\n",
-						  tv.tv_sec, tv.tv_usec, logLevelStr, logEntry);
+			if ((res = pthread_mutex_lock(&handle.mutex)) != 0)
+			{
+				fprintf(handle.logFile, "pthread_mutex_lock() failed with %d", res);
+				
+				return -1;
+			}
+			
+			if (LOG_IS_FLAG(LOG_FLAG_SRC_INFO))
+				fprintf(handle.logFile, "[%5d.%.06d] <%s:%d> #%d %s: %s\n",
+						  tv.tv_sec, tv.tv_usec, file, line, threadID,
+						  logLevelStr, logEntry);
 			else
 				fprintf(handle.logFile, "[%5d.%.06d] #%d %s: %s\n",
-						  tv.tv_sec, tv.tv_usec, *handle.threadID, logLevelStr,
+						  tv.tv_sec, tv.tv_usec, threadID, logLevelStr,
 						  logEntry);
+			
+			if ((res = pthread_mutex_unlock(&handle.mutex)) != 0)
+			{
+				fprintf(handle.logFile, "pthread_mutex_unlock() failed with %d",
+						  res);
+				
+				return -1;
+			}
 		}
 	}
 	
 	return 0;
 }
 
-int logHexdump(log_t handle, const char* file, const int line, const char* str,
-					const int len)
+int logHexdump(log_t handle, const char* file, const int line,
+					const int threadID, const char* str, const int len)
 {
 	int i, j;
 	struct timeval tv = relTime(handle.timeAtStart);
@@ -188,7 +196,7 @@ int logHexdump(log_t handle, const char* file, const int line, const char* str,
 					  tv.tv_usec, file, line);
 		else
 			fprintf(handle.logFile, "[%5d.%.06d] <%s:%d> #%d HEX:\n", tv.tv_sec,
-					  tv.tv_usec, file, line, *handle.threadID);
+					  tv.tv_usec, file, line, threadID);
 	}
 	else
 	{
@@ -196,7 +204,7 @@ int logHexdump(log_t handle, const char* file, const int line, const char* str,
 			fprintf(handle.logFile, "[%5d.%.06d] HEX:\n", tv.tv_sec, tv.tv_usec);
 		else
 			fprintf(handle.logFile, "[%5d.%.06d] #%d HEX:\n", tv.tv_sec,
-					  tv.tv_usec, *handle.threadID);
+					  tv.tv_usec, threadID);
 	}
 	
 	fprintf(handle.logFile, "---BEGIN_HEX---");
@@ -260,14 +268,26 @@ int logHexdump(log_t handle, const char* file, const int line, const char* str,
 	return 0;
 }
 
-int logHexdumpz(log_t handle, const char* file, const int line, const char* str)
+int logHexdumpz(log_t handle, const char* file, const int line,
+					 const int threadID, const char* str)
 {
-	return logHexdump(handle, file, line, str, strlen(str));
+	return logHexdump(handle, file, line, threadID, str, strlen(str));
 }
 
 int logCleanup(log_t handle)
 {
-	logPrint(handle, LOG_ARGS, LOG_INFO, "Logging stopped");
+	int res;
+	
+	if (handle.type == pthread)
+		if ((res = pthread_mutex_destroy(&handle.mutex)) != 0)
+		{
+			logPrint(handle, LOG_ARGS, LOG_ERR, -1, "pthread_mutex_destroy() "
+						"failed with %d", res);
+			
+			return -1;
+		}
+	
+	logPrint(handle, LOG_ARGS, LOG_INFO, -1, "Logging stopped");
 	
 	free(handle.logFileStr);
 	
