@@ -1,7 +1,13 @@
 #!/bin/bash
 
-gcc -Wall -std=c99 -g3 -fpic -c -o log.o log.c &&
+MAJOR_VER=1
+MINOR_VER=0
+BUILD_VER=1
+
+gcc -ansi -DMAJOR_VER=$MAJOR_VER -DMINOR_VER=$MINOR_VER -DBUILD_VER=$BUILD_VER \
+	 -Wall -ggdb -fpic -c -o log.o log.c &&
 #ar -rcs libLog.a log.o &&
-gcc -Wall -std=c99 -g3 -fpic -shared -Wl,-soname,libLog.so -o libLog.so log.o &&
+gcc -ansi -Wall -ggdb -fpic -shared -Wl,-soname,libLog.so  \
+	 -o libLog.so log.o &&
 echo 'Done!' ||
 echo -e '\aError!'
