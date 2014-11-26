@@ -12,4 +12,12 @@
 
 extern log_t logHandle;
 
+extern part_t* parts;
+extern pthread_t* threads;
+extern int noOfThreads;
+extern int partsPerThread;
+extern FILE* file;
+
+extern int iteration;
+
 #endif

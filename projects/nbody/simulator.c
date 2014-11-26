@@ -20,6 +20,7 @@ part_t* parts;
 pthread_t* threads;
 int noOfThreads;
 int partsPerThread;
+FILE* file;
 
 double resolution;
 const double G = 0.00000000006673; /* Gravitational const G = 6.673 x 10^-11 */
