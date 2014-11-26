@@ -1,0 +1,10 @@
+#!/bin/bash
+
+gcc -std=c99 -rdynamic -Wall -g3 -I$HOME/system/src/libPanicLog -c -o \
+	particle.o particle.c &&
+gcc -std=c99 -rdynamic -Wall -g3 -I$HOME/system/src/libPanicLog -c -o \
+	simulator.o	simulator.c &&
+gcc -std=c99 -rdynamic -Wall -g3 -L$HOME/system/lib -lPanicLog -lm -lpthread \
+	-o	simulator particle.o simulator.o &&
+(echo "Success" && exit 0) ||
+(echo -e '\aError!' && exit 1)
