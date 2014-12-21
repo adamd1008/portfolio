@@ -27,6 +27,12 @@ double maxMass[4] = {1000000000000000000000000000000.0,
 							100000000000000000000.0,
 							10000000000000.0};
 
+double colours[4][3] = {{1.0, 0.0, 0.0, 1.0}, /* Stars are RED */
+								{0.0, 1.0, 0.0, 1.0}, /* Planets are GREEN */
+								{1.0, 1.0, 1.0, 1.0}, /* Asteroids are WHITE */
+								{0.0, 1.0, 1.0, 1.0}}; /* Comets are CYAN */
+/* Aren't colours redundant for the simulator? */
+
 int totalPartTypes[4] = {1, 50, 500, 1000};
 int totalParts;
 
@@ -37,7 +43,10 @@ typedef struct _part_t
 	double vel[3];
 	double accel[3];
 	double mass;
+	/*double radius;
+	double colour[3];*/
 	int type;
+	int collided;
 	
 	struct _part_t* next;
 	

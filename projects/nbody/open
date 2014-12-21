@@ -1,3 +1,4 @@
 #!/bin/bash
 
-pluma --new-window *.{c,h} compile open &
+pluma --new-window *.h &
+pluma --new-window *.c compile open ../../../utils/c_c++/nbody/nbody.c &

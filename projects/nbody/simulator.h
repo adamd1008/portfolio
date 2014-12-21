@@ -10,6 +10,8 @@
 
 #define SIM_LINE_SIZE 128
 
+double pi = 3.141592654;
+
 extern log_t logHandle;
 
 extern part_t* parts;

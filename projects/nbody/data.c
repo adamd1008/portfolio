@@ -28,6 +28,8 @@ void dataStartIteration()
 
 void dataWriteParticle(int part)
 {
+	if (parts[part].
+	
 	fprintf(file, "%f %f %f %f %f %f ",
 			  parts[part].coords[0], parts[part].coords[1], parts[part].coords[2],
 			  parts[part].vel[0], parts[part].vel[1], parts[part].vel[2]);

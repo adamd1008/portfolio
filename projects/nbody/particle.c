@@ -60,7 +60,10 @@ int initParticles()
 			
 			parts[j + k].mass = getRandom(minMass[i], maxMass[i]);
 			
-			parts[j + k].type = 0;
+			/*parts[j + k].radius = cbrt((3.0 * parts[j + k].mass) /
+												(4 * pi * 5514.0));*/
+			
+			parts[j + k].type = i;
 		}
 		
 		k = j;
