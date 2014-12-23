@@ -1,0 +1,7 @@
+nbody
+
+####
+
+This is my n-body simulator which was originally written for my advanced computer graphics coursework at university.
+
+The view is fixed at the centre of the space and the left mouse button controls the polar rotation around it. The middle mouse button controls zoom. Either button can be pressed in conjunction with the space bar to amplify its effect.
