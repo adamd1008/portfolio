@@ -1,6 +1,9 @@
 #ifndef _SIMULATOR_H_
 #define _SIMULATOR_H_
 
+#include "panic_log.h"
+#include "particle.h"
+
 #define EXITF exit(EXIT_FAILURE)
 
 #define SIM_STATUS_INIT			0
@@ -19,6 +22,8 @@ extern pthread_t* threads;
 extern int noOfThreads;
 extern int partsPerThread;
 extern FILE* file;
+
+extern const double G;
 
 extern int iteration;
 

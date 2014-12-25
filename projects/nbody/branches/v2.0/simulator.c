@@ -10,9 +10,7 @@
 #include <time.h>
 #include <linux/limits.h>
 #include <pthread.h>
-#include "panic_log.h"
 #include "simulator.h"
-#include "particle.h"
 
 log_t logHandle;
 
@@ -32,6 +30,26 @@ struct option longOptions[] = {{"resolution", required_argument, NULL, 'r'},
 										 {NULL, 0, NULL, 0}};
 
 log_t logHandle;
+
+/* Functions to call during the simulation */
+
+void (*step)();
+/* The function to `step' each particle each iteration */
+
+void (*regularise)();
+/* The regularisation function
+	
+	The singularity in a discrete inverse-square simulation presents a serious
+	problem. An N-body simulator is basically useless and totally inaccurate if
+	something is not done about it. My first idea is to make particles collide
+	and coalesce if they come too close. */
+
+void* mainLoop(void* _tID)
+{
+	int tID = *((int*) _tID);
+	int offset = 
+	
+}
 
 void init()
 {
@@ -58,16 +76,10 @@ void init()
 		}
 }
 
-void* mainLoop(void* _tID)
-{
-	int tID = *((int*) _tID);
-	int offset = 
-	
-}
-
 int main(int argc, char** argv)
 {
 	int opt;
+	int optIndex = 0;
 	
 	logInit(&logHandle, NULL, LOG_ALL, LOG_FLAG_CLOEXEC | LOG_FLAG_SRC_INFO);
 	
@@ -100,7 +112,7 @@ int main(int argc, char** argv)
 	}
 	
 	init();
-	initParticles(noOfParts, volumeSize, initVelocity, mass);
+	initParticles();
 	
 	mainLoop();
 	

@@ -27,7 +27,7 @@ double maxMass[4] = {1000000000000000000000000000000.0,
 							100000000000000000000.0,
 							10000000000000.0};
 
-double colours[4][3] = {{1.0, 0.0, 0.0, 1.0}, /* Stars are RED */
+double colours[4][4] = {{1.0, 0.0, 0.0, 1.0}, /* Stars are RED */
 								{0.0, 1.0, 0.0, 1.0}, /* Planets are GREEN */
 								{1.0, 1.0, 1.0, 1.0}, /* Asteroids are WHITE */
 								{0.0, 1.0, 1.0, 1.0}}; /* Comets are CYAN */

@@ -32,8 +32,8 @@ int initParticles()
 	
 	if (parts == NULL)
 	{
-		sprintf(logEntry, "malloc: Out of memory");
-		logPrint(LOG_ERR, logEntry);
+		logPrint(logHandle, LOG_ARGS, "INIT", LOG_ERR, "Out of memory");
+		logAbort(logHandle, LOG_ARGS);
 		
 		return -1;
 	}
@@ -62,6 +62,7 @@ int initParticles()
 			
 			/*parts[j + k].radius = cbrt((3.0 * parts[j + k].mass) /
 												(4 * pi * 5514.0));*/
+			/* This is for the VIEWER to be concerned about, not the sim! */
 			
 			parts[j + k].type = i;
 		}
@@ -78,8 +79,12 @@ void freeParticles()
 	parts = NULL;
 }
 
-void processParts()
+void stepUnoptimised()
 {
+	/* This is an example of an n(n-1) -> O(n^2) time complexity step algorithm.
+		It's `obvious' in the sense that it's unoptimised, does-what-it-says-on-
+		the-tin, no-frills. */
+	
 	int i, j;
 	double dist, dist2, fg, fi, fj;
 	double d[3];
@@ -87,15 +92,15 @@ void processParts()
 	double compi[3];
 	double compj[3];
 	
-	for (i = 0; i < noOfParts; i++)
+	for (i = 0; i < totalParts; i++)
 	{
 		parts[i].accel[0] = 0.0;
 		parts[i].accel[1] = 0.0;
 		parts[i].accel[2] = 0.0;
 	}
 	
-	for (i = 0; i < noOfParts; i++)
-		for (j = i; j < noOfParts; j++)
+	for (i = 0; i < totalParts; i++)
+		for (j = i; j < totalParts; j++)
 			if (i != j)
 			{
 				/* First, calculate the distance between the points, and therefore,
@@ -106,6 +111,7 @@ void processParts()
 					
 					F = (G * m_1 * m_2) / r^2
 					F = ma
+					a = F/m
 					
 					Thus:
 					
@@ -152,7 +158,7 @@ void processParts()
 				parts[j].accel[2] -= compj[2];
 			}
 	
-	for (i = 0; i < noOfParts; i++)
+	for (i = 0; i < totalParts; i++)
 	{
 		parts[i].vel[0] += parts[i].accel[0];
 		parts[i].coords[0] += parts[i].vel[0];

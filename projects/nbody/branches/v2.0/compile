@@ -1,12 +1,15 @@
 #!/bin/bash
 
-INCLUDES="-I$HOME/system/libPanicLog"
-LIBS="-L$HOME/system/lib -lPanicLog"
+INCLUDES="-I/home/adam/system/src/libPanicLog"
+LIBS="-L/home/adam/system/lib -lm -lPanicLog -lpthread"
 
-gcc -std=c99 -rdynamic -Wall -g3 $INCLUDES -c -o particle.o particle.c &&
-gcc -std=c99 -rdynamic -Wall -g3 $INCLUDES -c -o simulator.o simulator.c &&
-gcc -std=c99 -rdynamic -Wall -g3 $INCLUDES -c -o data.o data.c &&
-gcc -std=c99 -rdynamic -Wall -g3 $LIBS -lm -lpthread -o simulator particle.o \
+gcc -ansi -rdynamic -Wall -Wpedantic -g3 $INCLUDES -c -o particle.o \
+	particle.c &&
+gcc -ansi -rdynamic -Wall -Wpedantic -g3 $INCLUDES -c -o simulator.o \
+	simulator.c &&
+gcc -ansi -rdynamic -Wall -Wpedantic -g3 $INCLUDES -c -o data.o \
+	data.c &&
+gcc -rdynamic -Wall -Wpedantic -g3 $LIBS -o simulator particle.o \
 	simulator.o data.o &&
 (echo "Success" && exit 0) ||
 (echo -e '\aError!' && exit 1)
