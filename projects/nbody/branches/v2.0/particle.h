@@ -55,6 +55,6 @@ typedef struct _part_t
 
 int initParticles();
 void freeParticles();
-void processParts();
+void stepunoptimised(int);
 
 #endif

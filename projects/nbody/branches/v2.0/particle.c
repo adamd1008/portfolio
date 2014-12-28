@@ -79,7 +79,7 @@ void freeParticles()
 	parts = NULL;
 }
 
-void stepUnoptimised()
+void stepUnoptimised(int offset)
 {
 	/* This is an example of an n(n-1) -> O(n^2) time complexity step algorithm.
 		It's `obvious' in the sense that it's unoptimised, does-what-it-says-on-

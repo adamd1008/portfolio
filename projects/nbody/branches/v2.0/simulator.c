@@ -14,10 +14,19 @@
 
 log_t logHandle;
 
-part_t* parts;
+/* POSIX threads variables and structures */
+
 pthread_t* threads;
-int noOfThreads;
+int noOfThreads = -1;
 int partsPerThread;
+
+#ifdef NBODY_USE_SPINLOCKS
+pthread_spinlock_t
+
+/* Other vars */
+
+part_t* parts;
+
 FILE* file;
 
 double resolution;
@@ -33,11 +42,12 @@ log_t logHandle;
 
 /* Functions to call during the simulation */
 
-void (*step)();
+void (*step)(int);
 /* The function to `step' each particle each iteration */
 
+void (*regulariseCheck)(int);
 void (*regularise)();
-/* The regularisation function
+/* The regularisation functions
 	
 	The singularity in a discrete inverse-square simulation presents a serious
 	problem. An N-body simulator is basically useless and totally inaccurate if
@@ -47,11 +57,16 @@ void (*regularise)();
 void* mainLoop(void* _tID)
 {
 	int tID = *((int*) _tID);
-	int offset = 
+	/* So, the thread has an ID such that 0 <= tID < noOfThreads. The offset into
+		the particles that this thread is responsible for is calculated using
+		(totalParts / noOfThreads) * tID. We already know that the noOfThreads
+		divides absolutely into totalParts. */
+	
+	int offset = (totalParts / noOfThreads) * tID;
 	
 }
 
-void init()
+void initThreads()
 {
 	int i, res;
 	
@@ -73,6 +88,18 @@ void init()
 			logCleanup(logHandle);
 			
 			EXITF;
+		}
+}
+
+void waitForEnd()
+{
+	int i;
+	
+	for (i = 0; i < noOfThreads; i++)
+		if ((pthread_join(&threads[i], NULL)) != 0)
+		{
+			logPrint(logHandle, LOG_ARGS, NULL, LOG_ERR, "Error in pthread_join");
+			log
 		}
 }
 
@@ -99,6 +126,15 @@ int main(int argc, char** argv)
 		}
 	}
 	
+	if (noOfThreads <= 0)
+	{
+		logPrint(logHandle, LOG_ARGS, NULL, LOG_ERR, "Must specify a valid "
+					"number of threads (-t)");
+		logCleanup(logHandle);
+		
+		EXITF;
+	}
+	
 	totalParts = totalPartTypes[0] + totalPartTypes[1] + totalPartTypes[2] +
 					 totalPartTypes[3];
 	
@@ -111,10 +147,12 @@ int main(int argc, char** argv)
 		EXITF;
 	}
 	
-	init();
+	partsPerThread = totalParts / noOfThreads;
+	
 	initParticles();
+	initThreads();
 	
-	mainLoop();
+	waitForEnd();
 	
-	cleanup(EXIT_SUCCESS);
+	return EXIT_SUCCESS;
 }
