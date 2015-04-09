@@ -1,0 +1,3 @@
+#!/bin/bash
+
+pluma --new-window run.bat run.sh *.py open &
