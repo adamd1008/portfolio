@@ -10,7 +10,7 @@ class SourceServer(object):
 	"""Base class for Valve Source engine game servers"""
 	
 	def __init__(self, sID, nick, addr, port):
-		self.sID = sID
+		self._sID = sID
 		self.nick = nick
 		self.addr = addr
 		self.port = port
@@ -18,32 +18,7 @@ class SourceServer(object):
 		# Internal variables to determine status
 		self._pinged = False
 		self._online = bool()
-		
-		# Variables from ping
-		self._header = int()
-		self._protocol = int()
-		self._name = str()
-		self._map = str()
-		self._folder = str()
-		self._game = str()
-		self._gameID = int()
-		self._players = int()
-		self._max_players = int()
-		self._bots = int()
-		self._type = str()
-		self._env = str()
-		self._vis = bool()
-		self._vac = bool()
-	
-	def __init__(self, sID, nick, addr, port):
-		self.sID = sID
-		self.nick = nick
-		self.addr = addr
-		self.port = port
-		
-		# Internal variables to determine status
-		self._pinged = False
-		self._online = bool()
+		self._latency = int()
 		
 		# Variables from ping
 		self._header = int()
@@ -68,7 +43,7 @@ class SourceServer(object):
 		conn.isolation_level = None
 		cur = conn.cursor()
 		cur.execute("SELECT `name`, `address`, `port` FROM servers WHERE " \
-						"`id`=?", (self.sID,))
+						"`id`=?", (self._sID,))
 		
 		row = cur.fetchone()
 		
@@ -92,7 +67,7 @@ class SourceServer(object):
 		conn.isolation_level = None
 		cur = conn.cursor()
 		cur.execute("INSERT INTO servers (`id`, `name`, `address`, `port`) " \
-						"VALUES (?, ?, ?, ?)", (self.sID, self.nick, self.addr,
+						"VALUES (?, ?, ?, ?)", (self._sID, self.nick, self.addr,
 						self.port))
 		
 		cur.close()
@@ -107,7 +82,7 @@ class SourceServer(object):
 		
 		cur.execute("UPDATE servers SET `name`=?, `address`=?, `port`=? " \
 						"WHERE `id`=?", (self.nick, self.addr, self.port,
-						self.sID))
+						self._sID))
 		
 		cur.close()
 		conn.close()
@@ -119,7 +94,7 @@ class SourceServer(object):
 		conn.isolation_level = None
 		cur = conn.cursor()
 		
-		cur.execute("DELETE FROM servers WHERE `id`=?", (self.sID,))
+		cur.execute("DELETE FROM servers WHERE `id`=?", (self._sID,))
 		
 		cur.close()
 		conn.close()
@@ -131,11 +106,15 @@ class SourceServer(object):
 		sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		sock.settimeout(timeout)
 		sock.connect((self.addr, self.port))
+		
+		t1 = time.time()
 		sock.sendall(request_packet)
 		
 		try:
 			reply = sock.recv(4096)
-		except sock.error as e:
+			t2 = time.time()
+			self._latency = int(round((t2 - t1) * 1000, 0))
+		except socket.error as e:
 			reply = None
 		finally:
 			sock.close()
@@ -212,7 +191,7 @@ class SourceServer(object):
 		
 		if self._online and self._players >= self._max_players:
 			sys.stdout.write("Server \"%s\" is full (%d/%d)\nListening for free " \
-								  + "space" % (self.nick, self._players,
+								  "space" % (self.nick, self._players,
 								  self._max_players))
 			
 			while self._online and self._players >= self._max_players:
@@ -229,7 +208,8 @@ class SourceServer(object):
 			else:
 				print "Server \"%s\" has gone offline" % (self.nick,)
 		else:
-			print "Joining server (%d/%d)" % (self._players, self._max_players)
+			print "Joining server \"%s\" (%d/%d)" % (self.nick, self._players,
+					self._max_players)
 			webbrowser.open("steam://connect/%s:%d" % (self.addr, self.port))
 			# Consider FancyURLopener() if this doesn't work on some platform?
 	

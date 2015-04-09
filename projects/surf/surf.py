@@ -51,7 +51,7 @@ class SurfMap(object):
 		cur = conn.cursor()
 		cur.execute("INSERT INTO maps (`name`, `tier`, `rating`, `stages`, " \
 						"`bonus`, `complete`, `favourite`) VALUES " \
-						"(?, ?, ?, ?, ?, ?, ?, ?)", (self._name, self.tier,
+						"(?, ?, ?, ?, ?, ?, ?)", (self._name, self.tier,
 						self.rating, self.stages, self.bonus, self.complete,
 						self.favourite))
 		
@@ -69,6 +69,27 @@ class SurfMap(object):
 						"`bonus`=?, `complete`=?, `favourite`=? WHERE `name`=?",
 						(self.tier, self.rating, self.stages, self.bonus,
 						self.complete, self.favourite, self._name))
+		
+		cur.close()
+		conn.close()
+	
+	def delete(self, confirm = True):
+		"""Delete map by name"""
+		
+		conn = sqlite3.connect("surf.db")
+		conn.isolation_level = None
+		cur = conn.cursor()
+		
+		if confirm:
+			sys.stdout.write("Are you sure you want to delete map \"%s\"? "
+								  % (self._name,))
+			
+			if stdin.read(1).lower() == 'y':
+				cur.execute("DELETE FROM maps WHERE `name`=?", (self._name,))
+			else:
+				print "Delete aborted"
+		else:
+			cur.execute("DELETE FROM maps WHERE `name`=?", (self._name,))
 		
 		cur.close()
 		conn.close()
@@ -100,7 +121,7 @@ class SurfDb(object):
 		cur.close()
 		conn.close()
 		
-		lastServers = ret
+		SurfDb.lastServers = ret
 		return ret
 	
 	@staticmethod
@@ -151,18 +172,18 @@ class SurfDb(object):
 					maxMapLen = mapLen
 		
 		print "=" * (maxNickLen + 7 + maxMapLen + 7) \
-				+ "====================================="
-		print "ID | Server" + " " * (maxNickLen + 1) + "| Game | Map" + " " * \
-				(maxMapLen + 4) + "| Tier | Rating | Comp"
+				+ "=============================================="
+		print " ID | Server" + " " * (maxNickLen + 1) + "| Game | Map" + " " * \
+				(maxMapLen + 4) + "| Tier | Rating | Comp  | Ping"
 		
 		for i, server in enumerate(servers):
 			if first:
-				print "===|" + "=" * (maxNickLen + 8) + "|======|" + "=" \
-						* (maxMapLen + 8) + "|======|========|======"
+				print "====|" + "=" * (maxNickLen + 8) + "|======|" + "=" \
+						* (maxMapLen + 8) + "|======|========|=======|======"
 				first = False
 			else:
-				print "---|" + "-" * (maxNickLen + 8) + "|------|" + "-" \
-						* (maxMapLen + 8) + "|------|--------|------"
+				print "----|" + "-" * (maxNickLen + 8) + "|------|" + "-" \
+						* (maxMapLen + 8) + "|------|--------|-------|------"
 		
 			if server._online:
 				# Find map the server is on!!
@@ -175,31 +196,31 @@ class SurfDb(object):
 						break
 			
 				if thisMap == None:
-					outStr = "{:>2d} | {:<" + str(maxNickLen) + "s} {:>2d}/{:<2d} " \
+					outStr = "{:>3d} | {:<" + str(maxNickLen) + "s} {:>2d}/{:<2d} " \
 								"| {:>4d} | {:<" + str(maxMapLen) + "s}  -/-  |    - " \
-								"|      - |   -  "
+								"|      - |   -   | {:>4}"
 				
 					print outStr.format(i, server.nick, server._players,
 											  server._max_players, server._gameID,
-											  server._map)
+											  server._map, server._latency)
 				else:
-					outStr = "{:>2d} | {:<" + str(maxNickLen) + "s} {:>2d}/{:<2d} " \
+					outStr = "{:>3d} | {:<" + str(maxNickLen) + "s} {:>2d}/{:<2d} " \
 								"| {:>4d} | {:<" + str(maxMapLen) + "s} {:>2d}/{:<2d}" \
-								" | {:>4d} | {:>6d} | {:s}"
+								" | {:>4d} | {:>6d} | {:<5s} | {:>4}"
 				
 					print outStr.format(i, server.nick, server._players,
 											  server._max_players, server._gameID,
 											  server._map, thisMap.stages, thisMap.bonus,
 											  thisMap.tier, thisMap.rating,
-											  str(thisMap.complete))
+											  str(thisMap.complete), server._latency)
 			else:
-				outStr = "{:>2d} | {:<" + str(maxNickLen + 6) + "s} |      | {:<" \
+				outStr = "{:>3d} | {:<" + str(maxNickLen + 6) + "s} |      | {:<" \
 						+ str(maxMapLen + 6) + "s} |      |        |"
 			
 				print outStr.format(i, server.nick, "(offline!)")
 	
 		print "=" * (maxNickLen + 7 + maxMapLen + 7) \
-				+ "====================================="
+				+ "=============================================="
 	
 	@staticmethod
 	def pp():
@@ -214,3 +235,39 @@ class SurfDb(object):
 	@staticmethod
 	def mon(delay = 180):
 		SurfDb.monitor()
+	
+	@staticmethod
+	def getNextServerID():
+		"""Get next free server ID"""
+		
+		conn = sqlite3.connect("surf.db")
+		conn.isolation_level = None
+		cur = conn.cursor()
+		cur.execute("SELECT MAX(`id`) + 1 FROM servers")
+		
+		row = cur.fetchone()
+		
+		if row == None:
+			print "Couldn't get next free ID!"
+			ret = -1
+		else:
+			ret = int(row[0])
+		
+		cur.close()
+		conn.close()
+		
+		return ret
+	
+	@staticmethod
+	def getServer(sID):
+		SurfDb.lastServers = SurfDb.getServers()
+		return SurfDb.lastServers[sID]
+	
+	@staticmethod
+	def getMap(name):
+		m = SurfMap(name)
+		
+		if not m.get():
+			print "Map not found; returning defaults"
+		
+		return m
