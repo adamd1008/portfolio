@@ -73,8 +73,17 @@ class SurfMap(object):
 		cur.close()
 		conn.close()
 
-class SurfDB(object):
+class SurfDb(object):
 	"""Static database class for surf servers and maps"""
+	
+	lastServers = None
+	
+	@staticmethod
+	def join(sID):
+		if SurfDb.lastServers == None:
+			SurfDb.lastServers = SurfDb.getServers()
+		
+		SurfDb.lastServers[sID].join()
 	
 	@staticmethod
 	def getServers():
@@ -91,6 +100,7 @@ class SurfDB(object):
 		cur.close()
 		conn.close()
 		
+		lastServers = ret
 		return ret
 	
 	@staticmethod
@@ -114,8 +124,8 @@ class SurfDB(object):
 	
 	@staticmethod
 	def prettyPrint():
-		maps = SurfDB.getMaps()
-		servers = SurfDB.getServers()
+		maps = SurfDb.getMaps()
+		servers = SurfDb.getServers()
 		SourceServer.pingAll(servers)
 		
 		first = True
@@ -193,41 +203,14 @@ class SurfDB(object):
 	
 	@staticmethod
 	def pp():
-		SurfDB.prettyPrint()
+		SurfDb.prettyPrint()
 	
 	@staticmethod
 	def monitor(delay = 180):
 		while True:
-			SurfDB.prettyPrint()
+			SurfDb.prettyPrint()
 			time.sleep(delay)
 	
 	@staticmethod
 	def mon(delay = 180):
-		SurfDB.monitor()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		SurfDb.monitor()

@@ -147,7 +147,3 @@ class SourceServer(object):
 	def pingAll(servers):
 		for server in servers:
 			server.ping()
-	
-	@staticmethod
-	def join(servers, sID):
-		servers[sID].join()
