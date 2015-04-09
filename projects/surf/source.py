@@ -9,7 +9,8 @@ import webbrowser
 class SourceServer(object):
 	"""Base class for Valve Source engine game servers"""
 	
-	def __init__(self, nick, addr, port):
+	def __init__(self, sID, nick, addr, port):
+		self.sID = sID
 		self.nick = nick
 		self.addr = addr
 		self.port = port
@@ -33,6 +34,95 @@ class SourceServer(object):
 		self._env = str()
 		self._vis = bool()
 		self._vac = bool()
+	
+	def __init__(self, sID, nick, addr, port):
+		self.sID = sID
+		self.nick = nick
+		self.addr = addr
+		self.port = port
+		
+		# Internal variables to determine status
+		self._pinged = False
+		self._online = bool()
+		
+		# Variables from ping
+		self._header = int()
+		self._protocol = int()
+		self._name = str()
+		self._map = str()
+		self._folder = str()
+		self._game = str()
+		self._gameID = int()
+		self._players = int()
+		self._max_players = int()
+		self._bots = int()
+		self._type = str()
+		self._env = str()
+		self._vis = bool()
+		self._vac = bool()
+	
+	def get(self):
+		"""Look up server by ID"""
+		
+		conn = sqlite3.connect("surf.db")
+		conn.isolation_level = None
+		cur = conn.cursor()
+		cur.execute("SELECT `name`, `address`, `port` FROM servers WHERE " \
+						"`id`=?", (self.sID,))
+		
+		row = cur.fetchone()
+		
+		if row == None:
+			ret = False
+		else:
+			self.name = row[0]
+			self.address = row[1]
+			self.port = int(row[2])
+			ret = True
+		
+		cur.close()
+		conn.close()
+		
+		return ret
+	
+	def insert(self):
+		"""Insert server (auto ID)"""
+		
+		conn = sqlite3.connect("surf.db")
+		conn.isolation_level = None
+		cur = conn.cursor()
+		cur.execute("INSERT INTO servers (`id`, `name`, `address`, `port`) " \
+						"VALUES (?, ?, ?, ?)", (self.sID, self.nick, self.addr,
+						self.port))
+		
+		cur.close()
+		conn.close()
+	
+	def update(self):
+		"""Update server by ID"""
+		
+		conn = sqlite3.connect("surf.db")
+		conn.isolation_level = None
+		cur = conn.cursor()
+		
+		cur.execute("UPDATE servers SET `name`=?, `address`=?, `port`=? " \
+						"WHERE `id`=?", (self.nick, self.addr, self.port,
+						self.sID))
+		
+		cur.close()
+		conn.close()
+	
+	def delete(self):
+		"""Delete server by ID"""
+		
+		conn = sqlite3.connect("surf.db")
+		conn.isolation_level = None
+		cur = conn.cursor()
+		
+		cur.execute("DELETE FROM servers WHERE `id`=?", (self.sID,))
+		
+		cur.close()
+		conn.close()
 	
 	def _ping(self, timeout):
 		request_packet = "\xff\xff\xff\xff\x54\x53\x6f\x75\x72\x63\x65\x20\x45" \

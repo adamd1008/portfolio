@@ -90,12 +90,12 @@ class SurfDb(object):
 		conn = sqlite3.connect("surf.db")
 		conn.isolation_level = None
 		cur = conn.cursor()
-		cur.execute("SELECT `name`, `address`, `port` FROM servers")
+		cur.execute("SELECT `id`, `name`, `address`, `port` FROM servers")
 		
 		ret = list()
 		
 		for row in cur:
-			ret.append(SourceServer(row[0], row[1], row[2]))
+			ret.append(SourceServer(row[0], row[1], row[2], row[3]))
 		
 		cur.close()
 		conn.close()
