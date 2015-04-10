@@ -75,7 +75,7 @@ A little knowledge of Python will go a long way but hopefully you wont need any.
 
     >>> m = SurfDb.getMap("surf_jizznipples")
     >>> m.delete()
-    Are you sure you want to delete map "surf_xxx" (y/n)? 
+    Are you sure you want to delete map "surf_jizznipples" (y/n)? 
 
 Anything other than a `y` or `Y` will stop the deletion.
 
