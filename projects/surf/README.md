@@ -93,7 +93,7 @@ A little knowledge of Python will go a long way but hopefully you wont need any.
 
     >>> SurfDb.mon()
 
-SurfDb.monitor() has an optional argument which is the delay between refreshes. The default is 180 seconds. Example view:
+`SurfDb.monitor()` and `SurfDb.mon()` have an optional argument which is the delay between refreshes. The default is 180 seconds. Example view of a pretty print:
 
     ================================================================================================
      ID | Server                  | Game | Map                       | Tier | Rating | Comp  | Ping
@@ -139,4 +139,4 @@ SurfDb.monitor() has an optional argument which is the delay between refreshes. 
 
 When a server is full, the library will rapidly ping the server until it detects that there is at least one free slot available, at which point it will immediately attempt to join. Note that if the game is not running when this happens, the game will open before joining. If the server you aim to join is high-demand, launch the game before attempting to join or the time the game spends launching may lose you your free slot!
 
-A general optimisation would be to add "-novid" to your launch options.
+A general optimisation would be to add `-novid` to your launch options.
