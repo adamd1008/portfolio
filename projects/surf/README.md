@@ -4,7 +4,7 @@ This is a set of Python classes designed to make surfing easy! Surfing as in sur
 
 It uses the SQLite database stored in `surf.db`. This will contain your choice of surf servers and maps along with their tier and your personal ratings of them.
 
-A little knowledge of Python will go a long way but hopefully you wont need any. Just remember that if you get stuck and want to get back to the "`>>>`" prompt, press `Ctrl+C`.
+A little knowledge of languages like Python and relational databases (you know, MySQL and stuff) will go a long way but hopefully you wont need any. Just remember that if you get stuck and want to get back to the "`>>>`" prompt, press `Ctrl+C`. Also, be careful: especially on Windows, it's easy to lose track on what you're doing by using the up and down arrow keys!
 
 ## Getting started (Windows)
 
@@ -17,6 +17,7 @@ A little knowledge of Python will go a long way but hopefully you wont need any.
 (This should work for Mac and Linux!)
 
 * Create a shortcut to `run.sh`
+* What's the likelihood you don't have Python installed and it's not in your `PATH`? Especially on Linux! :]
 
 ## Surf servers
 
@@ -55,6 +56,10 @@ A little knowledge of Python will go a long way but hopefully you wont need any.
 * `complete' : bool (False)
 * `favourite' : bool (False)
 
+Note that map names are always converted to lower case whenever possible, i.e. when servers are pinged, the user enters a map name, *et cetera* as I so far believe the GoldSrc/Source engine does not care. Please let me know if this is not the case!
+
+Also, **note that *maps* are keyed (uniquely identified) by their name**, not an integer ID like servers.
+
 ### Add a map:
 
     >>> m = SurfDb.getMap("surf_pyrism_njv")
@@ -62,6 +67,8 @@ A little knowledge of Python will go a long way but hopefully you wont need any.
     >>> m.rating = 10
     >>> m.tier = 5
     >>> m.insert()
+
+Whenever you call `SurfDb.getMap()` on a map that isn't present in your database, the code will tell you that it is returning a `SurfMap` instance that has all its fields set to their defaults. It is on these maps that you should call `insert()` as opposed to `update()` as the latter is for maps that are *already* present in the database. An `insert()` in that case would result in a constraint error on the database due to duplicate keys (as the map already exists).
 
 ### Update a map:
 
@@ -74,9 +81,9 @@ A little knowledge of Python will go a long way but hopefully you wont need any.
 
     >>> m = SurfDb.getMap("surf_jizznipples")
     >>> m.delete()
-    Are you sure you want to delete map "surf_xxx" (y/n)? 
+    Are you sure you want to delete map "surf_jizznipples" (y/n)? 
 
-Anything other than a 'y' will stop the deletion.
+Anything other than a `y` or `Y` will stop the deletion.
 
 ## Server list
 
@@ -140,6 +147,6 @@ Anything other than a 'y' will stop the deletion.
     Listening for free space...........
     Space now available (31/32)
 
-When a server is full, the library will rapidly ping the server until it detects that there is at least one free slot available, at which point it will immediately attempt to join. Note that if the game is not running when this happens, the game will open before joining. If the server you aim to join is high-demand, launch the game before attempting to join or the time the game spends launching may lose you your free slot!
+When a server is full, the library will rapidly ping the server (every 200ms by default) until it detects that there is at least one free slot available, at which point it will immediately attempt to join. Note that if the game is not running when this happens, the game will open before joining. If the server you aim to join is high-demand, launch the game before doing so or the time the game spends launching may lose you your free slot!
 
 A general optimisation would be to add `-novid` to your launch options.
