@@ -58,7 +58,7 @@ A little knowledge of languages like Python and relational databases (you know, 
 
 Note that map names are always converted to lower case whenever possible, i.e. when servers are pinged, the user enters a map name, *et cetera* as I so far believe the GoldSrc/Source engine does not care. Please let me know if this is not the case!
 
-Also, **note that *maps* are keyed on their name, not an integer ID** like servers.
+Also, **note that *maps* are keyed (uniquely identified) by their name, not an integer ID** like servers.
 
 ### Add a map:
 
