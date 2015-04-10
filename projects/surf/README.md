@@ -4,7 +4,7 @@ This is a set of Python classes designed to make surfing easy! Surfing as in sur
 
 It uses the SQLite database stored in `surf.db`. This will contain your choice of surf servers and maps along with their tier and your personal ratings of them.
 
-A little knowledge of languages like Python and relational databases (you know, MySQL and stuff) will go a long way but hopefully you wont need any. Just remember that if you get stuck and want to get back to the "`>>>`" prompt, press `Ctrl+C`. Also, be careful: especially on Windows, it's easy to lose track on what you're doing by using the up and down arrow keys!
+A little knowledge of languages like Python and relational databases (you know, MySQL and stuff) will go a long way but hopefully you wont need any. Just remember that if you get stuck and want to get back to the "`>>>`" prompt, press `Ctrl+C`. Also, be careful: it's easy to lose track on what you're doing by using the up and down arrow keys!
 
 ## Getting started (Windows)
 
@@ -29,8 +29,10 @@ A little knowledge of languages like Python and relational databases (you know, 
 
 ### Adding a server to your watch list:
 
-    >>> srv = SourceServer(SourceServer.getNextID(), "<server nickname>", "<server hostname/IP>", <port>)
+    >>> srv = SourceServer(SurfDb.getNextServerID(), "<server nickname>", "<server hostname/IP>", <port>)
     >>> srv.insert()
+
+**You must use `SurfDb.getNextServerID()` when creating new servers**, not the next ID you see in the pretty printed list!
 
 ### Updating server details:
 
@@ -134,6 +136,8 @@ Anything other than a `y` or `Y` will stop the deletion.
     ----|-------------------------|------|---------------------------|------|--------|-------|------
      12 | Area of Gaming #1 15/24 |  730 | surf_fruits         10/1  |    2 |      9 | False |   33
     ================================================================================================
+
+Again, **note that you must use `SurfDb.getNextServerID()` when creating a new server**, not the next largest integer that you see in this list!
 
 ### Joining a server:
 
