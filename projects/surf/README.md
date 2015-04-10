@@ -17,6 +17,7 @@ A little knowledge of Python will go a long way but hopefully you wont need any.
 (This should work for Mac and Linux!)
 
 * Create a shortcut to `run.sh`
+* (What's the chance you don't have python installed and not in your `PATH`? Especially on Linux :])
 
 ## Surf servers
 
