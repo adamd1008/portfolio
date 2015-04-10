@@ -2,7 +2,7 @@
 
 This is a set of Python classes designed to make surfing easy! Surfing as in surfing on Counter-Strike and other Valve GoldSrc/Source games.
 
-It uses the SQLite database stored in surf.db. This will contain your choice of surf servers and maps along with their tier and your personal ratings of them.
+It uses the SQLite database stored in `surf.db`. This will contain your choice of surf servers and maps along with their tier and your personal ratings of them.
 
 A little knowledge of Python will go a long way but hopefully you wont need any. Just remember that if you get stuck and want to get back to the "`>>>`" prompt, press `Ctrl+C`.
 
