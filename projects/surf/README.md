@@ -4,7 +4,7 @@ This is a set of Python classes designed to make surfing easy! Surfing as in sur
 
 It uses the SQLite database stored in `surf.db`. This will contain your choice of surf servers and maps along with their tier and your personal ratings of them.
 
-A little knowledge of Python will go a long way but hopefully you wont need any. Just remember that if you get stuck and want to get back to the "`>>>`" prompt, press `Ctrl+C`.
+A little knowledge of Python and relational databases will go a long way but hopefully you wont need any. Just remember that if you get stuck and want to get back to the "`>>>`" prompt, press `Ctrl+C`. Also, be careful: it's easy to delete records by accident!
 
 ## Getting started (Windows)
 
@@ -68,7 +68,7 @@ Also, note that maps are keyed on their name, not an integer ID.
     >>> m.tier = 5
     >>> m.insert()
 
-Whenever you call `SurfDb.getMap()` on a map that isn't present in your database, the code will tell you that it is returning a `SurfMap` instance that has all its fields set to their defaults. It is on these maps that you should call `insert()` as opposed to `update()` as the latter is for maps that are *already* present in the database. An `insert()` in that case would result in a constraint error on the database due to duplicate keys.
+Whenever you call `SurfDb.getMap()` on a map that isn't present in your database, the code will tell you that it is returning a `SurfMap` instance that has all its fields set to their defaults. It is on these maps that you should call `insert()` as opposed to `update()` as the latter is for maps that are *already* present in the database. An `insert()` in that case would result in a constraint error on the database due to duplicate keys (as the map already exists).
 
 ### Update a map:
 
