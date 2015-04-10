@@ -17,7 +17,7 @@ A little knowledge of Python will go a long way but hopefully you wont need any.
 (This should work for Mac and Linux!)
 
 * Create a shortcut to `run.sh`
-* (What's the chance you don't have python installed and not in your `PATH`? Especially on Linux :])
+* What's the likelihood you don't have Python installed and it's not in your `PATH`? Especially on Linux! :]
 
 ## Surf servers
 
@@ -77,7 +77,7 @@ A little knowledge of Python will go a long way but hopefully you wont need any.
     >>> m.delete()
     Are you sure you want to delete map "surf_xxx" (y/n)? 
 
-Anything other than a 'y' will stop the deletion.
+Anything other than a `y` or `Y` will stop the deletion.
 
 ## Server list
 
