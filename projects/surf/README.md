@@ -4,27 +4,27 @@ This is a set of Python classes designed to make surfing easy! Surfing as in sur
 
 It uses the SQLite database stored in surf.db. This will contain your choice of surf servers and maps along with their tier and your personal ratings of them.
 
-A little knowledge of Python will go a long way but hopefully you wont need any. Just remember that if you get stuck and want to get back to the ">>>" prompt, press Ctrl+C.
+A little knowledge of Python will go a long way but hopefully you wont need any. Just remember that if you get stuck and want to get back to the "`>>>`" prompt, press `Ctrl+C`.
 
 ## Getting started (Windows)
 
 * If you don't have it already, download Python 2.7 from https://www.python.org/downloads/
-* Ensure the path to python.exe is in your PATH environment variable
-* Make a shortcut on your desktop of run.bat
+* Ensure the path to `python.exe` is in your PATH environment variable
+* Make a shortcut on your desktop of `run.bat`
 
 ## Getting started (other)
 
 (This should work for Mac and Linux!)
 
-* Create a shortcut to run.sh
+* Create a shortcut to `run.sh`
 
 ## Surf servers
 
 ### Editable fields on a server (defaults in parentheses):
 
-`nick' : str
-`addr' : str
-`port' : int (27015)
+* `nick' : str
+* `addr' : str
+* `port' : int (27015)
 
 ### Adding a server to your watch list:
 
@@ -48,12 +48,12 @@ A little knowledge of Python will go a long way but hopefully you wont need any.
 
 ### Editable fields on a map (defaults in parentheses):
 
-`tier' : int (-1)
-`rating' : int (-1)
-`stages' : int (-1)
-`bonus' : int (-1)
-`complete' : bool (False)
-`favourite' : bool (False)
+* `tier' : int (-1)
+* `rating' : int (-1)
+* `stages' : int (-1)
+* `bonus' : int (-1)
+* `complete' : bool (False)
+* `favourite' : bool (False)
 
 ### Add a map:
 
