@@ -72,21 +72,25 @@ A little knowledge of Python will go a long way but hopefully you wont need any.
 
 ### Delete a map:
 
->>> m = SurfDb.getMap("surf_jizznipples")
->>> m.delete()
+    >>> m = SurfDb.getMap("surf_jizznipples")
+    >>> m.delete()
 
 ## Server list
 
 ### One-time server list:
 
     >>> SurfDb.prettyPrint()
+
 (or)
+
     >>> SurfDb.pp()
 
 ### Continuous monitoring:
 
     >>> SurfDb.monitor()
+
 (or)
+
     >>> SurfDb.mon()
 
 SurfDb.monitor() has an optional argument which is the delay between refreshes. The default is 180 seconds.
