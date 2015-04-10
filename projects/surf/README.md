@@ -4,7 +4,7 @@ This is a set of Python classes designed to make surfing easy! Surfing as in sur
 
 It uses the SQLite database stored in `surf.db`. This will contain your choice of surf servers and maps along with their tier and your personal ratings of them.
 
-A little knowledge of Python and relational databases will go a long way but hopefully you wont need any. Just remember that if you get stuck and want to get back to the "`>>>`" prompt, press `Ctrl+C`. Also, be careful: it's easy to delete records by accident!
+A little knowledge of languages like Python and relational databases (you know, MySQL and stuff) will go a long way but hopefully you wont need any. Just remember that if you get stuck and want to get back to the "`>>>`" prompt, press `Ctrl+C`. Also, be careful: especially on Windows, it's easy to lose track on what you're doing by using the up and down arrow keys!
 
 ## Getting started (Windows)
 
