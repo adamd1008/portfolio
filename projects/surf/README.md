@@ -56,6 +56,10 @@ A little knowledge of Python will go a long way but hopefully you wont need any.
 * `complete' : bool (False)
 * `favourite' : bool (False)
 
+Note that map names are always converted to lower case whenever possible, i.e. when servers are pinged, the user enters a map name, *et cetera* as I so far believe the GoldSrc/Source engine does not care. Please let me know if this is not the case!
+
+Also, note that maps are keyed on their name, not an integer ID.
+
 ### Add a map:
 
     >>> m = SurfDb.getMap("surf_pyrism_njv")
@@ -63,6 +67,8 @@ A little knowledge of Python will go a long way but hopefully you wont need any.
     >>> m.rating = 10
     >>> m.tier = 5
     >>> m.insert()
+
+Whenever you call `SurfDb.getMap()` on a map that isn't present in your database, the code will tell you that it is returning a `SurfMap` instance that has all its fields set to their defaults. It is on these maps that you should call `insert()` as opposed to `update()` as the latter is for maps that are *already* present in the database. An `insert()` in that case would result in a constraint error on the database due to duplicate keys.
 
 ### Update a map:
 
