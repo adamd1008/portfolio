@@ -1,3 +1,4 @@
+import sys
 import time
 import sqlite3
 from source import SourceServer
@@ -81,11 +82,12 @@ class SurfMap(object):
 		cur = conn.cursor()
 		
 		if confirm:
-			sys.stdout.write("Are you sure you want to delete map \"%s\"? "
+			sys.stdout.write("Are you sure you want to delete map \"%s\" (y/n)? "
 								  % (self._name,))
 			
-			if stdin.read(1).lower() == 'y':
+			if sys.stdin.read(1).lower() == 'y':
 				cur.execute("DELETE FROM maps WHERE `name`=?", (self._name,))
+				print "Map \"%s\" deleted" % (self._name,)
 			else:
 				print "Delete aborted"
 		else:
