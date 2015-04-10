@@ -140,6 +140,6 @@ Anything other than a 'y' will stop the deletion.
     Listening for free space...........
     Space now available (31/32)
 
-When a server is full, the library will rapidly ping the server until it detects that there is at least one free slot available, at which point it will immediately attempt to join. Note that if the game is not running when this happens, the game will open before joining. If the server you aim to join is high-demand, launch the game before attempting to join or the time the game spends launching may lose you your free slot!
+When a server is full, the library will rapidly ping the server (every 200ms by default) until it detects that there is at least one free slot available, at which point it will immediately attempt to join. Note that if the game is not running when this happens, the game will open before joining. If the server you aim to join is high-demand, launch the game before doing so or the time the game spends launching may lose you your free slot!
 
 A general optimisation would be to add `-novid` to your launch options.
