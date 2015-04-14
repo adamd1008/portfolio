@@ -217,7 +217,7 @@ class SurfDb(object):
 											  str(thisMap.complete), server._latency)
 			else:
 				outStr = "{:>3d} | {:<" + str(maxNickLen + 6) + "s} |      | {:<" \
-						+ str(maxMapLen + 6) + "s} |      |        |"
+						+ str(maxMapLen + 6) + "s} |      |        |       |"
 			
 				print outStr.format(i, server.nick, "(offline!)")
 	

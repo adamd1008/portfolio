@@ -190,9 +190,9 @@ class SourceServer(object):
 		self.ping()
 		
 		if self._online and self._players >= self._max_players:
-			sys.stdout.write("Server \"%s\" is full (%d/%d)\nListening for free " \
-								  "space" % (self.nick, self._players,
-								  self._max_players))
+			sys.stdout.write("Server \"%s\" on \"%s\" is full (%d/%d)\nListening" \
+								  " for free space" % (self.nick, self._map,
+								  self._players, self._max_players))
 			
 			while self._online and self._players >= self._max_players:
 				self.ping()
@@ -202,16 +202,18 @@ class SourceServer(object):
 			sys.stdout.write("\n")
 			
 			if self._online:
-				print "Space now available (%d/%d)" % (self._players,
+				print "Space now available; joining (%d/%d)" % (self._players,
 						self._max_players)
 				webbrowser.open("steam://connect/%s:%d" % (self.addr, self.port))
 			else:
 				print "Server \"%s\" has gone offline" % (self.nick,)
-		else:
-			print "Joining server \"%s\" (%d/%d)" % (self.nick, self._players,
-					self._max_players)
+		elif self._online:
+			print "Joining server \"%s\" on \"%s\" (%d/%d)" % (self.nick,
+					self._map, self._players, self._max_players)
 			webbrowser.open("steam://connect/%s:%d" % (self.addr, self.port))
 			# Consider FancyURLopener() if this doesn't work on some platform?
+		else:
+			print "Server \"%s\" is offline" % (self.nick,)
 	
 	@staticmethod
 	def pingAll(servers):
