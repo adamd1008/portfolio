@@ -4,7 +4,21 @@
 #include <forward_list>
 
 #ifdef _WIN32
+
 #include <Windows.h>
+
+#elif defined(__linux)
+
+#ifndef _BSD_SOURCE
+#define _BSD_SOURCE
+#endif
+
+#include <sys/time.h>
+
+#else
+
+#error "Unknown system"
+
 #endif
 
 class Order
@@ -20,6 +34,7 @@ class Order
 			volume = _volume;
 
 #ifdef _WIN32
+			
 			FILETIME ft;
 			GetSystemTimeAsFileTime(&ft);
 			unsigned long long tt = ft.dwHighDateTime;
@@ -28,8 +43,13 @@ class Order
 			tt /= 10;
 			tt -= 11644473600000000ULL;
 			timestamp = ((float) tt) / 1000000.0f;
-#else
-			// Linux code!!
+			
+#elif defined(__linux)
+			
+			struct timeval now;
+			gettimeofday(&now, NULL);
+			timestamp = (float) now.tv_sec + ((float) tv_usec / 1000000.0f);
+			
 #endif
 		}
 
