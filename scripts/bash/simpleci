@@ -4,13 +4,13 @@
 # from the command line
 
 if [ $# -ne 1 ]; then
-	echo 'Wrong number of arguments!!' > /dev/stderr
-	
-	exit 1
+   echo 'Wrong number of arguments!!' > /dev/stderr
+   
+   exit 1
 fi
 
 if [ -z "$CFLAGS" ]; then
-	CFLAGS="-g3 -Wall"
+   CFLAGS="-g3 -Wall"
 fi
 
 gcc -std=c99 $CFLAGS -xc -o "$@" -

@@ -5,37 +5,37 @@ TOP_ABS_DIR="`pwd`"
 FILE_LIST=""
 
 if [ -e "/usr/bin/pluma" ]; then
-	MY_EDITOR=pluma
+   MY_EDITOR=pluma
 else
-	MY_EDITOR=gedit
+   MY_EDITOR=gedit
 fi
 
 getFiles()
 {
-	#sleep 1
-	local DIR_HERE
-	local EXPR_RES
-	
-	if [ -z "$1" ]; then
-		DIR_HERE="./"
-	else
-		DIR_HERE="$1/"
-	fi
-	
-	#echo "In dir \"$DIR_HERE\""
-	
-	for file in $DIR_HERE*; do
-		FILE_PATH=$DIRHERE$file
-		if [ -d "$FILE_PATH" ]; then
-			getFiles $FILE_PATH
-		else
-			EXPR_RES=`expr match "$FILE_PATH" '.*[.][ch]'`
-			
-			if [ "${#FILE_PATH}" == "$EXPR_RES" ]; then
-				FILE_LIST="$FILE_LIST $FILE_PATH"
-			fi
-		fi
-	done
+   #sleep 1
+   local DIR_HERE
+   local EXPR_RES
+   
+   if [ -z "$1" ]; then
+      DIR_HERE="./"
+   else
+      DIR_HERE="$1/"
+   fi
+   
+   #echo "In dir \"$DIR_HERE\""
+   
+   for file in $DIR_HERE*; do
+      FILE_PATH=$DIRHERE$file
+      if [ -d "$FILE_PATH" ]; then
+         getFiles $FILE_PATH
+      else
+         EXPR_RES=`expr match "$FILE_PATH" '.*[.][ch]'`
+         
+         if [ "${#FILE_PATH}" == "$EXPR_RES" ]; then
+            FILE_LIST="$FILE_LIST $FILE_PATH"
+         fi
+      fi
+   done
 }
 
 getFiles
