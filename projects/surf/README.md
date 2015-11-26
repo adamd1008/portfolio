@@ -29,10 +29,8 @@ A little knowledge of languages like Python and relational databases (you know, 
 
 ### Adding a server to your watch list:
 
-    >>> srv = SourceServer(SurfDb.getNextServerID(), "<server nickname>", "<server hostname/IP>", <port>)
+    >>> srv = SourceServer.new("<server nickname>", "<server hostname/IP>", <port>)
     >>> srv.insert()
-
-**You must use `SurfDb.getNextServerID()` when creating new servers**, not the next ID you see in the pretty printed list!
 
 ### Updating server details:
 
@@ -136,8 +134,6 @@ Anything other than a `y` or `Y` will stop the deletion.
     ----|-------------------------|------|---------------------------|------|--------|-------|------
      12 | Area of Gaming #1 15/24 |  730 | surf_fruits         10/1  |    2 |      9 | False |   33
     ================================================================================================
-
-Again, **note that you must use `SurfDb.getNextServerID()` when creating a new server**, not the next largest integer that you see in this list!
 
 ### Joining a server:
 

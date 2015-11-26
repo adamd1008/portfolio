@@ -5,6 +5,7 @@ import time
 import sys
 import sqlite3
 import webbrowser
+import surf
 
 class SourceServer(object):
    """Base class for Valve Source engine game servers"""
@@ -36,6 +37,10 @@ class SourceServer(object):
       self._vis = bool()
       self._vac = bool()
    
+   @classmethod
+   def new(cls, nick, addr, port):
+      return cls(surf.SurfDb.getNextServerID(), nick, addr, port)
+
    def get(self):
       """Look up server by ID"""
       
