@@ -21,7 +21,24 @@
 
 #define LOG_MAX_LEN PIPE_BUF
 
-struct timeval relTime(struct timeval timeAtStart)
+/* Shortcut macros */
+#define LOG_PTR_IS_LL(x)   ((handle->logLevels & x) == x)
+#define LOG_IS_LL(x)       ((handle.logLevels & x) == x)
+#define LOG_PTR_IS_FLAG(x) ((handle->flags & x) == x)
+#define LOG_IS_FLAG(x)     ((handle.flags & x) == x)
+
+const char* const uuid = LOG_UUID;
+
+static const char* const logLevelInfoStr = "INFO";
+static const char* const logLevelWarnStr = "WARN";
+static const char* const logLevelErrStr = "ERR";
+static const char* const logLevelBugStr = "BUG";
+static const char* const logLevelL1Str = "L1";
+static const char* const logLevelL2Str = "L2";
+static const char* const logLevelL3Str = "L3";
+static const char* const logLevelUnknStr = "UNKN";
+
+struct timeval _relTime(struct timeval timeAtStart)
 {
    struct timeval toReturn;
    struct timeval timeNow;
@@ -33,10 +50,10 @@ struct timeval relTime(struct timeval timeAtStart)
    return toReturn;
 }
 
-log_t* logInit(const char* fileName, const int logLevelMask,
-               const int flagMask)
+log_t* logInit(const char* fileName, const char* file, const int line,
+               const char* func, const int logLevelMask, const int flagMask)
 {
-   log_t* const handle = malloc(sizeof(log_t));
+   log_t* handle = malloc(sizeof(log_t));
    
    if (handle == NULL)
       return NULL;
@@ -87,15 +104,16 @@ log_t* logInit(const char* fileName, const int logLevelMask,
       }
    }
    
-   logPrint(handle, LOG_ARGS, LOG_INFO, "Log library started (v%d.%d.%d)",
-            MAJOR_VER, MINOR_VER, BUILD_VER);
-   logPrint(handle, LOG_ARGS, LOG_INFO, "loglevels mask = 0x%.08x",
+   logPrint(handle, file, line, func, LOG_INFO,
+            "Log library started (v%d.%d.%d)", MAJOR_VER, MINOR_VER,
+            BUILD_VER);
+   logPrint(handle, file, line, func, LOG_INFO, "loglevels mask = 0x%.08x",
             logLevelMask);
    
    return handle;
 }
 
-const char* logGetLogLevelStr(const int logLevel)
+const char* _logGetLogLevelStr(const int logLevel)
 {
    const char* ret = logLevelUnknStr;
    
@@ -129,7 +147,7 @@ const char* logGetLogLevelStr(const int logLevel)
    return ret;
 }
 
-void logPrint(log_t* const handle, const char* file, const int line,
+void logPrint(const log_t* handle, const char* file, const int line,
               const char* func, const int logLevel, const char* fmt, ...)
 {
    if (LOG_PTR_IS_LL(logLevel))
@@ -139,13 +157,13 @@ void logPrint(log_t* const handle, const char* file, const int line,
       char logEntry[LOG_MAX_LEN];
       struct timeval tv;
       
-      strcpy(logLevelStr, logGetLogLevelStr(logLevel));
+      strcpy(logLevelStr, _logGetLogLevelStr(logLevel));
       
       va_start(ap, fmt);
       vsnprintf(logEntry, LOG_MAX_LEN, fmt, ap);
       va_end(ap);
       
-      tv = relTime(handle->timeAtStart);
+      tv = _relTime(handle->timeAtStart);
       
       if (LOG_PTR_IS_FLAG(LOG_FLAG_SRC_INFO))
       {
@@ -165,7 +183,7 @@ void logPrint(log_t* const handle, const char* file, const int line,
    }
 }
 
-void logHexdump(log_t* const handle, const char* file, const int line,
+void logHexdump(const log_t* handle, const char* file, const int line,
                 const char* func, const int logLevel, const char* str,
                 const int len)
 {
@@ -175,20 +193,22 @@ void logHexdump(log_t* const handle, const char* file, const int line,
       int i, j;
       struct timeval tv;
       
-      strcpy(logLevelStr, logGetLogLevelStr(logLevel));
-      tv = relTime(handle->timeAtStart);
+      strncpy(logLevelStr, _logGetLogLevelStr(logLevel), 8);
+      logLevelStr[7] = 0;
+      tv = _relTime(handle->timeAtStart);
       
       if (LOG_PTR_IS_FLAG(LOG_FLAG_SRC_INFO))
       {
-         fprintf(handle->logFile, "[%5ld.%.06ld] <%s:%d> \"%s\" %s: HEX\n",
+         fprintf(handle->logFile,
+                 "[%5ld.%.06ld] <%s:%d> \"%s\" %s: HEX (%d bytes)\n",
                  (long int) tv.tv_sec, (long int) tv.tv_usec, file, line,
-                 func, logLevelStr);
+                 func, logLevelStr, len);
       }
       else
       {
-         fprintf(handle->logFile, "[%5ld.%.06ld] \"%s\" %s: HEX\n",
+         fprintf(handle->logFile, "[%5ld.%.06ld] \"%s\" %s: HEX (%d bytes)\n",
                  (long int) tv.tv_sec, (long int) tv.tv_usec, func,
-                 logLevelStr);
+                 logLevelStr, len);
       }
       
       fprintf(handle->logFile, "---BEGIN_HEX---");
@@ -198,7 +218,12 @@ void logHexdump(log_t* const handle, const char* file, const int line,
          if ((i % 16) == 0)
             fprintf(handle->logFile, "\n%.08x  ", i);
          
-         fprintf(handle->logFile, "%.02hx ", str[i]);
+         /* ISO C90 does not support the 'hh' length modifier, so use this
+          * interesting solution...
+          * 
+          * XXX Will this work on big endian systems?
+          */
+         fprintf(handle->logFile, "%.02hx ", str[i] & 0xff);
          
          if (i > 0)
          {
@@ -252,40 +277,46 @@ void logHexdump(log_t* const handle, const char* file, const int line,
    }
 }
 
-void logHexdumpz(log_t* const handle, const char* file, const int line,
+void logHexdumpz(const log_t* handle, const char* file, const int line,
                  const char* func, const int logLevel, const char* str)
 {
    logHexdump(handle, file, line, func, logLevel, str, strlen(str));
 }
 
-int logCleanup(log_t* const handle)
+void logExit(const log_t* handle, const char* file, const int line,
+             const char* func, int exitCode)
 {
-   logPrint(handle, LOG_ARGS, LOG_INFO, "Logging stopped");
+   logPrint(handle, file, line, func, LOG_INFO,
+            "Exiting application with code %d", exitCode);
+   logCleanup(handle, file, line, func);
+   
+   exit(exitCode);
+}
+
+void logCleanup(const log_t* handle, const char* file, const int line,
+                const char* func)
+{
+   logPrint(handle, file, line, func, LOG_INFO, "Logging stopped");
    
    if (handle->logFileStr[0] != 0)
       if ((fclose(handle->logFile)) != 0)
-      {
          perror("fclose");
-         return -1;
-      }
    
    free(handle->logFileStr);
-   free(handle);
-   
-   return 0;
+   free((log_t*) handle); /* Cast to remove compiler const complaint */
 }
 
-int logGetLogLevel(log_t* const handle, int logLevel)
+int logGetLogLevel(const log_t* handle, int logLevel)
 {
    return LOG_PTR_IS_LL(logLevel);
 }
 
-void logBacktrace(log_t* const handle, const char* file, const int line,
+void logBacktrace(const log_t* handle, const char* file, const int line,
                   const char* func)
 {
    void* buf[128];
    int nptrs = backtrace(buf, 128);
-   struct timeval tv = relTime(handle->timeAtStart);
+   struct timeval tv = _relTime(handle->timeAtStart);
    
    char** strings = backtrace_symbols(buf, nptrs);
    int i;
@@ -312,18 +343,18 @@ void logBacktrace(log_t* const handle, const char* file, const int line,
    free(strings);
 }
 
-void logAbort(log_t* const handle, const char* file, const int line,
+void logAbort(const log_t* handle, const char* file, const int line,
               const char* func)
 {
    logPrint(handle, file, line, func, LOG_INFO, "Process is now aborting");
    
    logBacktrace(handle, file, line, func);
-   logCleanup(handle);
+   logCleanup(handle, file, line, func);
    
    abort();
 }
 
-void __logAssert(log_t* const handle, const char* file, const int line,
+void __logAssert(const log_t* handle, const char* file, const int line,
                  const char* func, const char* cond)
 {
    if (LOG_PTR_IS_FLAG(LOG_FLAG_ENABLE_ASSERTS))
@@ -334,7 +365,7 @@ void __logAssert(log_t* const handle, const char* file, const int line,
    }
 }
 
-void* logMalloc(log_t* const handle, const char* file, const int line,
+void* logMalloc(const log_t* handle, const char* file, const int line,
                 const char* func, size_t size)
 {
    char* ret = malloc(size);
@@ -348,7 +379,7 @@ void* logMalloc(log_t* const handle, const char* file, const int line,
    return (void*) ret;
 }
 
-void logLuaStackDump(log_t* const handle, const char* file, const int line,
+void logLuaStackDump(const log_t* handle, const char* file, const int line,
                      const char* func, lua_State* lua)
 {
    char logLevelStr[8];
@@ -356,8 +387,9 @@ void logLuaStackDump(log_t* const handle, const char* file, const int line,
    struct timeval tv;
    
    top = lua_gettop(lua);
-   strcpy(logLevelStr, logLevelInfoStr);
-   tv = relTime(handle->timeAtStart);
+   strncpy(logLevelStr, logLevelInfoStr, 8);
+   logLevelStr[7] = 0;
+   tv = _relTime(handle->timeAtStart);
 
    if (LOG_PTR_IS_FLAG(LOG_FLAG_SRC_INFO))
    {

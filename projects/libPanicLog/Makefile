@@ -1,11 +1,11 @@
 MAJOR_VER=1
-MINOR_VER=6
+MINOR_VER=9
 BUILD_VER=0
 
-$(eval UUID := $(shell uuidgen -r))
+$(eval UUID := $(shell uuidgen -t))
 
 CC=gcc
-CFLAGS=-c -Wall -Wextra -Werror -rdynamic -fPIC -pedantic -ansi \
+CFLAGS=-ansi -c -Wall -Wextra -Werror -rdynamic -fPIC -pedantic \
 	-DMAJOR_VER=$(MAJOR_VER) \
 	-DMINOR_VER=$(MINOR_VER) \
 	-DBUILD_VER=$(BUILD_VER) \
