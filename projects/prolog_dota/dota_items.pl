@@ -1,18 +1,18 @@
 /*
-	28/05/14
-	TODO:
-	
-	Nested resolution, i.e. if you query build(dagon5, X), it should not give:
-	
-	X = [dagon4, recipe(dagon5)].
-	
-	It should give the full output like this:
-	
-	X = [staffOfWizadry, beltOfStrength, recipe(dagon1), recipe(dagon2),
-		  recipe(dagon3), recipe(dagon4), recipe(dagon5)].
-	
-	Also, there are still issues with builds that have two or more of the same
-	item, i.e. magic wand.
+   28/05/14
+   TODO:
+   
+   Nested resolution, i.e. if you query build(dagon5, X), it should not give:
+   
+   X = [dagon4, recipe(dagon5)].
+   
+   It should give the full output like this:
+   
+   X = [staffOfWizadry, beltOfStrength, recipe(dagon1), recipe(dagon2),
+        recipe(dagon3), recipe(dagon4), recipe(dagon5)].
+   
+   Also, there are still issues with builds that have two or more of the same
+   item, i.e. magic wand.
 */
 
 item(empty).
@@ -96,23 +96,23 @@ item(sacredRelic).
 
 % The recipes themselves are also items
 item(recipe(X)) :-
-	recipe(X), !.
+   recipe(X), !.
 
 % As are the builds
 item(X) :-
-	build(X, _).
+   build(X, _).
 
 % Recipe upgrades
 
 recipe(X) :-
-	build_contains_recipe(X).
+   build_contains_recipe(X).
 
 build_contains_recipe(X) :-
-	build(X, Items), build_contains_recipe2(X, Items).
+   build(X, Items), build_contains_recipe2(X, Items).
 
 build_contains_recipe2(X, [recipe(X)| _T]).
 build_contains_recipe2(X, [_H| T]) :-
-	build_contains_recipe2(X, T), !.
+   build_contains_recipe2(X, T), !.
 
 % Common
 build(magicWand, [magicStick, ironBranch, ironBranch, circlet]).
@@ -179,7 +179,7 @@ build(octarineCore, [mysticStaff, soulBooster]).
 % Weapons
 build(crystalys, [broadsword, bladesOfAttack, recipe(crystalys)]).
 build(armletOfMordiggian, [helmOfIronWill, glovesOfHaste, bladesOfAttack,
-		recipe(armletOfMordiggian)]).
+      recipe(armletOfMordiggian)]).
 build(shadowBlade, [shadowAmulet, claymore]).
 build(skullBasher, [beltOfStrength, javelin, recipe(skullBasher)]).
 build(battleFury, [perseverance, claymore, broadsword, quellingBlade]).
@@ -219,7 +219,7 @@ build(yasha, [bladeOfAlacrity, bandOfElvenskin, recipe(yasha)]).
 build(echoSabre, [ogreClub, oblivionStaff]).
 build(maelstrom, [glovesOfHaste, mithrilHammer, recipe(maelstrom)]).
 build(diffusalBlade, [bladeOfAlacrity, bladeOfAlacrity, robeOfTheMagi,
-		recipe(diffusalBlade)]).
+      recipe(diffusalBlade)]).
 build(desolator, [mithrilHammer, mithrilHammer, recipe(desolator)]).
 build(heavensHalberd, [sange, talismanOfEvasion]).
 build(sangeAndYasha, [sange, yasha]).
