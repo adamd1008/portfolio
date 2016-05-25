@@ -24,28 +24,10 @@ Load the DotA database:
     %  dota_items compiled 0.00 sec, 38,088 bytes
     % dota compiled 0.00 sec, 41,344 bytes
     true.
-    
-    ?-
 
 # What items go into a build?
 
 That's easy!
-
-    ?- quick_buy(necronomicon3, X).
-    X = [staffOfWizardry, beltOfStrength, recipe(necronomicon1), recipe(necronomicon2), recipe(necronomicon3)].
-    
-    ?-
-
-# Dev notes
-
-There are bugs in this; for example:
-
-    ?- quick_buy(dagon5, X).
-    X = [staffOfWizardry, circlet, mantleOfIntelligence, recipe(nullTalisman), recipe(dagon1), recipe(dagon2), recipe(dagon3), recipe(dagon4), recipe(...)].
-
-Note the `...'
-
-The database definition is the same as for the Necronomicon item AFAICT:
 
     ?- quick_buy(necronomicon3, X).
     X = [staffOfWizardry, beltOfStrength, recipe(necronomicon1), recipe(necronomicon2), recipe(necronomicon3)].
