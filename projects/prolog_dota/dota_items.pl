@@ -31,7 +31,6 @@ item(animalCourier).
 item(flyingCourier).
 item(observerWard).
 item(sentryWard).
-item(wards). % When both kinds of ward exist in inventory
 item(tomeOfKnowledge).
 item(bottle).
 
@@ -113,6 +112,8 @@ build_contains_recipe(X) :-
 build_contains_recipe2(X, [recipe(X)| _T]).
 build_contains_recipe2(X, [_H| T]) :-
    build_contains_recipe2(X, T), !.
+
+build(wards, [observerWards, sentryWards]).
 
 % Common
 build(magicWand, [magicStick, ironBranch, ironBranch, circlet]).
